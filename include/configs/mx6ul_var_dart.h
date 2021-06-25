@@ -74,25 +74,48 @@
 
 #define MMC_BOOT_ENV_SETTINGS \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
+	"bootdir=/boot\0" \
+	"mount=rw\0" \
+	"bootpart=1\0" \
 	"mmcblk=0\0" \
 	"mmcautodetect=yes\0" \
-	"mmcbootpart=1\0" \
-	"mmcrootpart=2\0" \
+	"defaultEnv=1\0" \
+	"getBootDev= " \
+		"if test ${boot_dev} = sd; then " \
+			"setenv mmcdev 0; " \
+			"setenv fdt_file sd-card.dtb; " \
+		"else " \
+			"setenv mmcdev 1; " \
+			"setenv fdt_file emmc-wifi.dtb; " \
+		"fi;\0" \
+	"checkDefaultEnv= " \
+		"if itest ${defaultEnv} == 1; then " \
+			"setenv defaultEnv 0; " \
+			"saveenv; " \
+		"fi;\0" \
+	"checkUpdate= " \
+		"if itest ${ustate} == 1; then " \
+			"if itest ${bootpart} == 1; then " \
+				"setenv bootpart 2; " \
+			"else if itest ${bootpart} == 2; then " \
+				"setenv bootpart 1; " \
+			"fi; fi;" \
+		"fi;\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
-		"root=/dev/mmcblk${mmcblk}p${mmcrootpart} rootwait rw " \
+		"root=/dev/mmcblk${mmcdev}p${bootpart} rootwait ${mount} logo.nologo " \
 		"${cma_size}\0" \
 	"loadbootenv=" \
-		"load mmc ${mmcdev}:${mmcbootpart} ${loadaddr} ${bootdir}/${bootenv}\0" \
+		"load mmc ${mmcdev}:${bootpart} ${loadaddr} ${bootdir}/${bootenv}\0" \
 	"importbootenv=echo Importing bootenv from mmc ...; " \
 		"env import -t ${loadaddr} ${filesize}\0" \
 	"loadbootscript=" \
-		"load mmc ${mmcdev}:${mmcbootpart} ${loadaddr} ${bootdir}/${script};\0" \
+		"load mmc ${mmcdev}:${bootpart} ${loadaddr} ${bootdir}/${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
-	"loadimage=load mmc ${mmcdev}:${mmcbootpart} ${loadaddr} ${bootdir}/${image}\0" \
+	"loadimage=load mmc ${mmcdev}:${bootpart} ${loadaddr} ${bootdir}/${image}\0" \
 	"loadfdt=run findfdt; " \
 		"echo fdt_file=${fdt_file}; " \
-		"load mmc ${mmcdev}:${mmcbootpart} ${fdt_addr} ${bootdir}/${fdt_file}\0" \
+		"load mmc ${mmcdev}:${bootpart} ${fdt_addr} ${bootdir}/${fdt_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"run optargs; " \
@@ -122,8 +145,13 @@
 #define BOOT_ENV_SETTINGS	MMC_BOOT_ENV_SETTINGS
 #define CONFIG_BOOTCOMMAND \
 	"run ramsize_check; " \
+	"run checkDefaultEnv;" \
+	"run getBootDev; " \
 	"mmc dev ${mmcdev};" \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
+		"if itest ${mmcdev} == 1; then " \
+			"run checkUpdate; " \
+		"fi; " \
 		"if run loadbootenv; then " \
 			"run importbootenv; " \
 		"fi; " \
@@ -132,10 +160,10 @@
 		"else " \
 			"if run loadimage; then " \
 				"run mmcboot; " \
-			"else run netboot; " \
+			"else echo ERROR: No valid image; " \
 			"fi; " \
 		"fi; " \
-	"else run netboot; fi"
+	"else echo ERROR: No valid image; fi"
 
 #endif
 
@@ -155,8 +183,6 @@
 	"initrd_high=0xffffffff\0" \
 	"panel=VAR-WVGA-LCD\0" \
 	"splashsourceauto=yes\0" \
-	"splashfile=/boot/splash.bmp\0" \
-	"splashimage=0x83100000\0" \
 	"splashenable=setenv splashfile /boot/splash.bmp; " \
 		"setenv splashimage 0x83100000\0" \
 	"splashdisable=setenv splashfile; setenv splashimage\0" \
