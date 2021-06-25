@@ -34,6 +34,7 @@
 #endif
 
 #include "mx6var_eeprom_v2.h"
+#include "laceOS_eeprom.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -849,8 +850,10 @@ static const struct boot_mode board_boot_modes[] = {
 #define SDRAM_SIZE_STR_LEN 5
 int board_late_init(void)
 {
+	char macAddr_str[18];
 	char sdram_size_str[SDRAM_SIZE_STR_LEN];
 	struct var_eeprom_v2_cfg var_eeprom_v2_cfg = {0};
+	struct lace_eeprom_cfg lace_eeprom_cfg = {0};
 
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
@@ -862,6 +865,19 @@ int board_late_init(void)
 
 	if (var_eeprom_v2_read_struct(&var_eeprom_v2_cfg))
 		puts("Warning: Can't read SOM configuration from EEPROM\n");
+		
+	if (laceos_eeprom_read_struct(&lace_eeprom_cfg)) {
+		puts("Warning: Can't read LaceOS configuration from EEPROM\n");	
+	} else {
+		snprintf(macAddr_str, 18, "%02X:%02X:%02X:%02X:%02X:%02X", lace_eeprom_cfg.mac1[0],
+										lace_eeprom_cfg.mac1[1],
+										lace_eeprom_cfg.mac1[2],
+										lace_eeprom_cfg.mac1[3],
+										lace_eeprom_cfg.mac1[4],
+										lace_eeprom_cfg.mac1[5] );
+		env_set("ethaddr", macAddr_str);
+	}
+		
 
 	if ((var_eeprom_v2_cfg.som_info & 0x3) == 0x2)
 		print_emmc_size();
