@@ -71,11 +71,10 @@
 	"mtdids=" MTDIDS_DEFAULT "\0" \
 	"mtdparts=" MTDPARTS_DEFAULT "\0"
 
-/* TODO: Change default mount option for emmc to RO */
 #define MMC_BOOT_ENV_SETTINGS \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"bootdir=/boot\0" \
-	"mount=rw\0" \
+	"mount=ro\0" \
 	"bootpart=1\0" \
 	"mmcblk=0\0" \
 	"mmcautodetect=yes\0" \
@@ -87,7 +86,6 @@
 			"setenv fdt_file sd-card.dtb; " \
 		"else " \
 			"setenv mmcdev 1; " \
-			"setenv mount rw; " \
 			"setenv fdt_file emmc-wifi.dtb; " \
 		"fi;\0" \
 	"checkDefaultEnv= " \
