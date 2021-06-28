@@ -83,6 +83,7 @@
 		"if test ${boot_dev} = sd; then " \
 			"setenv mmcdev 0; " \
 			"setenv mount rw; " \
+			"setenv ustate; " \
 			"setenv fdt_file sd-card.dtb; " \
 		"else " \
 			"setenv mmcdev 1; " \
