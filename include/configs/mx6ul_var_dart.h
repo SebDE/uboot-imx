@@ -76,6 +76,7 @@
 	"bootdir=/boot\0" \
 	"mount=ro\0" \
 	"bootpart=1\0" \
+	"ustate=0\0 " \
 	"mmcblk=0\0" \
 	"mmcautodetect=yes\0" \
 	"defaultEnv=1\0" \
@@ -83,7 +84,7 @@
 		"if test ${boot_dev} = sd; then " \
 			"setenv mmcdev 0; " \
 			"setenv mount rw; " \
-			"setenv ustate; " \
+			"setenv ustate 0; " \
 			"setenv fdt_file sd-card.dtb; " \
 		"else " \
 			"setenv mmcdev 1; " \
