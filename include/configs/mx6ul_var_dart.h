@@ -85,10 +85,10 @@
 			"setenv mmcdev 0; " \
 			"setenv mount rw; " \
 			"setenv ustate 0; " \
-			"setenv fdt_file sd-card.dtb; " \
+			"setenv fdt_file recovery.dtb; " \
 		"else " \
 			"setenv mmcdev 1; " \
-			"setenv fdt_file emmc-wifi.dtb; " \
+			"setenv fdt_file run.dtb; " \
 		"fi;\0" \
 	"checkDefaultEnv= " \
 		"if itest ${defaultEnv} == 1; then " \
