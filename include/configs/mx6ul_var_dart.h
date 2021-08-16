@@ -95,8 +95,16 @@
 			"setenv defaultEnv 0; " \
 			"saveenv; " \
 		"fi;\0" \
+	"updateTry=0\0" \
 	"checkUpdate= " \
+		"if itest ${updateTry} == 1; then " \
+			"setenv updateTry 0; " \
+			"setenv ustate 0; " \
+			"saveenv; " \
+		"fi;" \
 		"if itest ${ustate} == 1; then " \
+			"setenv updateTry 1; " \
+			"saveenv; " \
 			"if itest ${bootpart} == 1; then " \
 				"setenv bootpart 2; " \
 			"else if itest ${bootpart} == 2; then " \
@@ -104,7 +112,7 @@
 			"fi; fi;" \
 		"fi;\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
-		"root=/dev/mmcblk${mmcdev}p${bootpart} rootwait ${mount} logo.nologo " \
+		"root=/dev/mmcblk${mmcdev}p${bootpart} rootwait ${mount} panic=5 logo.nologo " \
 		"${cma_size}\0" \
 	"loadbootenv=" \
 		"load mmc ${mmcdev}:${bootpart} ${loadaddr} ${bootdir}/${bootenv}\0" \
