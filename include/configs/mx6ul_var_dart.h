@@ -80,15 +80,21 @@
 	"mmcblk=0\0" \
 	"mmcautodetect=yes\0" \
 	"defaultEnv=1\0" \
+	"wifiEnable=0\0" \
 	"getBootDev= " \
 		"if test ${boot_dev} = sd; then " \
 			"setenv mmcdev 0; " \
 			"setenv mount rw; " \
 			"setenv ustate 0; " \
+			"setenv wifiEnable 0; " \
 			"setenv fdt_file recovery.dtb; " \
 		"else " \
 			"setenv mmcdev 1; " \
-			"setenv fdt_file run.dtb; " \
+			"if itest ${wifiEnable} == 1; then " \
+				"setenv fdt_file runWifi.dtb; " \
+			"else " \
+				"setenv fdt_file run.dtb; " \
+			"fi; " \
 		"fi;\0" \
 	"checkDefaultEnv= " \
 		"if itest ${defaultEnv} == 1; then " \
